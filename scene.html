@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;font-family:"Noto Sans CJK JP","Noto Sans JP",sans-serif}
+body{background:#1a1420;position:relative}
+.cap{position:absolute;left:60px;right:60px;top:170px;z-index:5;text-align:center}
+.cap span{display:inline;background:#fff;color:#1a1420;font-weight:900;font-size:66px;line-height:1.55;padding:6px 18px;box-decoration-break:clone;-webkit-box-decoration-break:clone;border-radius:14px}
+.cap.pink span{background:#ff4f88;color:#fff}
+.phone{position:absolute;left:150px;top:520px;width:780px;height:1300px;border-radius:70px;background:#000;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.screen{width:100%;height:100%;border-radius:52px;overflow:hidden;position:relative;background:#7494c0}
+/* LINE */
+.lhead{height:120px;background:#2b3a55;color:#fff;display:flex;align-items:flex-end;justify-content:center;padding-bottom:22px;font-size:36px;font-weight:700}
+.chat{padding:30px 26px;display:flex;flex-direction:column;gap:22px}
+.b{align-self:flex-start;width:fit-content;max-width:76%;padding:20px 26px;border-radius:34px;font-size:34px;line-height:1.45;background:#fff;color:#111}
+.b.me{align-self:flex-end;background:#8de055}
+.read{font-size:22px;color:#e8eefb;align-self:flex-end;margin-top:-14px}
+.blurname{filter:blur(10px)}
+/* app */
+.app{background:#fff5f8;height:100%;padding:70px 46px;color:#2a1f2d}
+.brand{display:flex;align-items:center;gap:16px;font-weight:900;font-size:36px;color:#ff5d8f}
+.logo{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#ff5d8f,#ff9a7a);display:grid;place-items:center}
+.app h1{font-size:62px;line-height:1.35;margin:60px 0 24px}
+.app h1 em{font-style:normal;color:#ff5d8f}
+.app p{font-size:28px;color:#8a7a8f;line-height:1.7}
+.drop{margin-top:50px;border:5px dashed #ffb3c9;border-radius:40px;background:#fff;height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.drop b{font-size:40px}
+.thumb{width:260px;height:330px;border-radius:24px;overflow:hidden;background:#7494c0;padding:16px;display:flex;flex-direction:column;gap:12px}
+.thumb i{display:block;height:34px;border-radius:17px;background:#fff;width:70%}
+.thumb i.m{align-self:flex-end;background:#8de055;width:60%}
+.btn{margin-top:40px;border-radius:999px;padding:34px;text-align:center;font-weight:900;font-size:40px;color:#fff;background:linear-gradient(135deg,#ff5d8f,#ff8a7a)}
+.tapdot{position:absolute;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.55);border:6px solid #fff;left:313px;bottom:203px}
+/* loading */
+.load{height:100%;background:#fff5f8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;color:#8a7a8f;font-size:38px;font-weight:700}
+/* result */
+.res{height:100%;background:#fff5f8;padding:60px 40px}
+.score{border-radius:44px;background:linear-gradient(160deg,#ff5d8f,#ff9a7a);color:#fff;text-align:center;padding:50px 30px}
+.score .l{font-size:32px;opacity:.9}
+.score .n{font-size:200px;font-weight:900;line-height:1.05}
+.score .n small{font-size:80px}
+.score .t{display:inline-block;background:rgba(255,255,255,.25);border-radius:999px;padding:12px 36px;font-weight:900;font-size:40px}
+.score.cold{background:linear-gradient(160deg,#6f7fa8,#9aa6c4)}
+.box{background:#fff;border-radius:36px;padding:34px;margin-top:30px;font-size:30px;line-height:1.6}
+.box h3{font-size:32px;margin-bottom:14px}
+.q{border-left:10px solid #06c755;background:#f3fbf5;border-radius:14px;padding:16px 20px;margin-top:12px}
+.q.bad{border-color:#f59e0b;background:#fff8ec}
+.q b{display:block;font-size:30px}
+.q span{font-size:26px;color:#4b4b55}
+/* end */
+.end{position:absolute;inset:0;background:linear-gradient(170deg,#ff5d8f,#ff9a7a);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;gap:40px}
+.end .bl{width:200px;height:200px;border-radius:56px;background:#fff;display:grid;place-items:center}
+.end h2{font-size:96px;font-weight:900}
+.end p{font-size:48px;font-weight:700;line-height:1.6}
+.end .pill{background:#fff;color:#ff4f88;border-radius:999px;padding:30px 60px;font-size:50px;font-weight:900}
+.end .tag{font-size:40px;opacity:.9}
+</style></head>
+<body><div id="root"></div>
+<script>
+const heart=(s,c)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24"><path fill="${c}" d="M12 21s-7.5-4.6-10-9.3C.4 8.5 2.3 4.5 6 4.5c2.1 0 3.4 1.2 4 2.2.6-1 1.9-2.2 4-2.2 3.7 0 5.6 4 4 7.2C19.5 16.4 12 21 12 21z"/></svg>`;
+function render(S){
+  const st=S.state; let html="";
+  const cap=S.caps[st]?`<div class="cap ${S.capPink&&S.capPink.includes(st)?'pink':''}"><span>${S.caps[st]}</span></div>`:"";
+  if(st==="chat"){
+    html=`${cap}<div class="phone"><div class="screen"><div class="lhead"><span class="blurname">${S.name}</span></div><div class="chat">${S.chat.map(m=>`<div class="b ${m[0]==='me'?'me':''}">${m[1]}</div>`).join("")}<div class="read">既読 ${S.time}</div></div></div></div>`;
+  } else if(st==="upload"){
+    html=`${cap}<div class="phone"><div class="screen"><div class="app"><div class="brand"><div class="logo">${heart(36,'#fff')}</div>みゃくみる</div><h1>そのLINE、<br><em>脈あり</em>か分かります。</h1><p>トーク画面のスクショを送るだけ</p><div class="drop"><div class="thumb"><i></i><i class="m"></i><i></i><i class="m"></i><i></i></div><b>スクショを選択済み</b></div><div class="btn">診断する</div></div><div class="tapdot"></div></div></div>`;
+  } else if(st==="load"){
+    html=`${cap}<div class="phone"><div class="screen"><div class="load">${heart(220,'#ff5d8f')}<div>${S.loadText||"相手の本音を分析中…"}</div></div></div></div>`;
+  } else if(st==="result"){
+    const n=S.count??S.score;
+    html=`${cap}<div class="phone"><div class="screen"><div class="res"><div class="score ${S.score<40?'cold':''}"><div class="l">相手の脈あり度</div><div class="n">${n}<small>%</small></div><div class="t">${S.label}</div></div><div class="box"><h3>ここが根拠</h3>${S.signals.map(q=>`<div class="q ${q[2]?'bad':''}"><b>「${q[0]}」</b><span>${q[1]}</span></div>`).join("")}</div></div></div></div>`;
+  } else if(st==="end"){
+    html=`<div class="end"><div class="bl">${heart(130,'#ff5d8f')}</div><h2>みゃくみる</h2><p>LINEのスクショで<br>脈あり診断</p><div class="pill">プロフのリンクから無料で診断</div><div class="tag">#みゃくみる</div></div>`;
+  }
+  document.getElementById("root").innerHTML=html;
+}
+window.render=render;
+</script></body></html>
