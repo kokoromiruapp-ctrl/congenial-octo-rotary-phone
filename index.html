@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>みゃくみる｜LINEスクショで脈あり診断</title>
+<meta name="description" content="LINEのスクショを送るだけで、AIが脈あり度を診断。次に送るべき一言もわかる。">
+<style>
+  :root{--pink:#ff5d8f;--pink2:#ffb3c9;--bg:#fff5f8;--ink:#2a1f2d;--sub:#8a7a8f;--card:#fff;--line:#f3dbe4;--green:#06c755}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:440px;margin:0 auto;padding:18px 16px 40px;min-height:100vh}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;color:var(--pink)}
+  .brand .dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#ff5d8f,#ff9a7a);display:grid;place-items:center;color:#fff;font-size:14px}
+  h1{font-size:26px;line-height:1.35;margin:22px 0 8px}
+  h1 em{font-style:normal;color:var(--pink)}
+  .lead{color:var(--sub);font-size:14px;line-height:1.7;margin:0 0 20px}
+  .drop{display:block;background:var(--card);border:2px dashed var(--pink2);border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer}
+  .drop b{display:block;font-size:17px;margin:8px 0 4px}
+  .drop span{font-size:12px;color:var(--sub)}
+  .drop input{display:none}
+  .big{font-size:40px}
+  .btn{display:block;width:100%;border:none;border-radius:999px;padding:15px;font-size:16px;font-weight:800;color:#fff;background:linear-gradient(135deg,#ff5d8f,#ff8a7a);box-shadow:0 6px 18px rgba(255,93,143,.3);cursor:pointer}
+  .btn.ghost{background:#fff;color:var(--pink);border:2px solid var(--pink2);box-shadow:none}
+  .mt{margin-top:12px}
+  .small{font-size:11px;color:var(--sub);text-align:center;margin-top:10px;line-height:1.6}
+  .who{display:flex;gap:8px;margin:14px 0}
+  .who button{flex:1;padding:11px;border-radius:12px;border:2px solid var(--line);background:#fff;font-weight:700;font-size:13px;color:var(--ink)}
+  .who button.on{border-color:var(--pink);color:var(--pink);background:#fff0f5}
+  .preview{width:100%;max-height:260px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid var(--line)}
+  .hidden{display:none!important}
+  .loading{text-align:center;padding:60px 0}
+  .heart{font-size:56px;animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+  .loading p{color:var(--sub);font-size:14px}
+  .card{background:var(--card);border-radius:22px;padding:18px;margin-top:14px;box-shadow:0 4px 18px rgba(255,93,143,.08)}
+  .score{text-align:center;padding:22px 18px;background:linear-gradient(160deg,#ff5d8f,#ff9a7a);color:#fff}
+  .score .lbl{font-size:13px;opacity:.9}
+  .score .num{font-size:64px;font-weight:900;line-height:1.1}
+  .score .num small{font-size:24px}
+  .score .tag{display:inline-block;background:rgba(255,255,255,.25);border-radius:999px;padding:5px 14px;font-weight:800;margin-top:4px}
+  .score .sum{font-size:14px;line-height:1.7;margin-top:12px}
+  .card h3{margin:0 0 10px;font-size:15px}
+  .feel li{margin:0 0 8px;line-height:1.6;font-size:14px}
+  .feel{padding-left:18px;margin:0}
+  .sig{border-left:4px solid var(--green);background:#f3fbf5;border-radius:8px;padding:9px 11px;margin-bottom:8px}
+  .sig.bad{border-color:#f59e0b;background:#fff8ec}
+  .sig q{display:block;font-weight:700;font-size:13px;margin-bottom:3px}
+  .sig span{font-size:12px;color:#4b4b55;line-height:1.6}
+  .msg{display:flex;align-items:center;gap:8px;background:#eafbe7;border-radius:14px;padding:10px 12px;margin-bottom:8px;font-size:14px}
+  .msg p{margin:0;flex:1;line-height:1.5}
+  .msg button{border:none;background:var(--green);color:#fff;border-radius:999px;padding:6px 11px;font-size:12px;font-weight:700}
+  .lock{position:relative;overflow:hidden}
+  .lock .blur{filter:blur(6px);user-select:none;pointer-events:none}
+  .lock .over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.55);text-align:center;padding:16px}
+  .lock .over b{font-size:15px;margin-bottom:4px}
+  .lock .over span{font-size:12px;color:var(--sub);margin-bottom:10px}
+  .lock .over .btn{width:auto;padding:11px 22px;font-size:14px}
+  .share{background:linear-gradient(160deg,#2a1f2d,#57324a);color:#fff;text-align:center;padding:22px}
+  .share .t{font-size:12px;opacity:.75}
+  .share .p{font-size:46px;font-weight:900}
+  .share .q{font-size:14px;margin-top:4px}
+  .share .w{font-size:11px;opacity:.6;margin-top:10px}
+  #sheet{position:fixed;inset:0;background:rgba(42,31,45,.5);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+  #sheet .in{background:#fff;width:100%;max-width:440px;border-radius:22px 22px 0 0;padding:22px 18px 26px}
+  #sheet h2{margin:0 0 6px;font-size:20px}
+  #sheet ul{padding-left:18px;margin:10px 0 16px;font-size:14px;line-height:1.9}
+  .plan{border:2px solid var(--pink);border-radius:14px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .plan.alt{border-color:var(--line)}
+  .plan b{font-size:15px}.plan span{font-size:12px;color:var(--sub)}
+  .plan .pr{font-weight:900;font-size:17px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#2a1f2d;color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;z-index:10}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><div class="dot">♡</div>みゃくみる</div>
+
+  <!-- 1. 入口 -->
+  <section id="step1">
+    <h1>そのLINE、<br><em>脈あり</em>か分かります。</h1>
+    <p class="lead">気になる人とのトーク画面をスクショして送るだけ。AIが文面から相手の気持ちを読み取って、次に送るべき一言まで教えます。</p>
+    <label class="drop">
+      <div class="big">📱</div>
+      <b>スクショを選ぶ</b>
+      <span>トーク画面のスクリーンショット1枚</span>
+      <input id="file" type="file" accept="image/*">
+    </label>
+    <button class="btn ghost mt" id="demo">見本のトークで試す</button>
+    <p class="small">無料で3回まで診断できます。<br>画像は診断にだけ使い、保存しません。<br>相手の名前やアイコンは隠してから送るのがおすすめです。</p>
+  </section>
+
+  <!-- 2. 確認 -->
+  <section id="step2" class="hidden">
+    <h1 style="font-size:22px">あなたはどっち側?</h1>
+    <img id="prev" class="preview" alt="送ったスクショ">
+    <div class="who">
+      <button data-w="right" class="on">右(緑)が自分</button>
+      <button data-w="left">左(白)が自分</button>
+    </div>
+    <button class="btn" id="go">診断する</button>
+    <button class="btn ghost mt" id="back">選び直す</button>
+  </section>
+
+  <!-- 3. 診断中 -->
+  <section id="step3" class="hidden loading">
+    <div class="heart">💗</div>
+    <p id="ltext">トークを読み取っています…</p>
+  </section>
+
+  <!-- 4. 結果 -->
+  <section id="step4" class="hidden"></section>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let side="right", currentFile=null, demoMode=false;
+const API="https://opnauzcgorlvbnrtqkmi.supabase.co/functions/v1/myakumiru-diagnose";
+const SRC=(new URLSearchParams(location.search).get("src")||"direct").slice(0,20);
+const FREE=3;
+function used(){ try{ return +localStorage.getItem("mm_used")||0; }catch(e){ return 0; } }
+function addUse(){ try{ localStorage.setItem("mm_used", used()+1); }catch(e){} }
+function track(ev){ try{ fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({event:ev,src:SRC})}); }catch(e){} }
+track("visit");
+async function shrink(file){
+  const img=await createImageBitmap(file);
+  const scale=Math.min(1, 1280/Math.max(img.width,img.height));
+  const c=document.createElement("canvas"); c.width=Math.round(img.width*scale); c.height=Math.round(img.height*scale);
+  c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+  const url=c.toDataURL("image/jpeg",0.82); return url.split(",")[1];
+}
+
+function show(id){ ["step1","step2","step3","step4"].forEach(s=>$("#"+s).classList.toggle("hidden",s!==id)); window.scrollTo(0,0); }
+function esc(s){ return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function toast(t){ const d=document.createElement("div"); d.className="toast"; d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),1800); }
+
+const DEMO_SVG=`<svg xmlns='http://www.w3.org/2000/svg' width='360' height='520' font-family='sans-serif' font-size='14'>
+<rect width='360' height='520' fill='#7494c0'/><rect width='360' height='44' fill='#2b3a55'/><text x='180' y='28' fill='#fff' text-anchor='middle' font-size='15'>◯◯くん</text>
+<rect x='14' y='64' width='190' height='40' rx='16' fill='#fff'/><text x='26' y='89'>今日の飲み会たのしかった！</text>
+<rect x='150' y='118' width='196' height='40' rx='16' fill='#8de055'/><text x='162' y='143'>こちらこそ！また話したい〜</text>
+<rect x='14' y='172' width='236' height='60' rx='16' fill='#fff'/><text x='26' y='197'>じゃあ今度ごはん行こ？</text><text x='26' y='218'>駅前のパスタ屋気になってて</text>
+<rect x='196' y='246' width='150' height='40' rx='16' fill='#8de055'/><text x='208' y='271'>いいね！いつ空いてる？</text>
+<rect x='14' y='300' width='120' height='40' rx='16' fill='#fff'/><text x='26' y='325'>来週の金曜は？</text>
+<rect x='226' y='354' width='120' height='40' rx='16' fill='#8de055'/><text x='238' y='379'>金曜OK！🙆‍♀️</text>
+<rect x='14' y='408' width='226' height='40' rx='16' fill='#fff'/><text x='26' y='433'>やった、楽しみにしてる😊</text>
+<text x='18' y='470' fill='#e8eefb' font-size='11'>既読 23:41</text></svg>`;
+const DEMO_URL="data:image/svg+xml;utf8,"+encodeURIComponent(DEMO_SVG);
+
+const DEMO_RESULT={
+  score:86,label:"かなり脈あり",
+  summary:"相手から食事に誘い、お店まで具体的に提案しています。日程もすぐ決めようとしていて、会いたい気持ちがはっきり出ています。",
+  feelings:["あなたともっと2人で話したいと思っている","断られないか少しドキドキしながら誘っている","金曜を本当に楽しみにしている"],
+  signals:[
+    {quote:"じゃあ今度ごはん行こ？",meaning:"相手から誘っているのは強い好意のサイン。",good:true},
+    {quote:"駅前のパスタ屋気になってて",meaning:"行き先まで考えている＝前から誘うつもりだった可能性。",good:true},
+    {quote:"やった、楽しみにしてる😊",meaning:"「やった」は素直なうれしさ。社交辞令ではなさそう。",good:true}
+  ],
+  next:["わたしも楽しみ！パスタ何系が好き？","金曜までにお腹すかせとくね笑","そのお店、前から気になってたんだ〜"],
+  advice:"ここで追いLINEを重ねすぎず、当日までに1〜2回だけ軽く話題を振るくらいがちょうどいいです。"
+};
+
+const PROMPT=(s)=>`あなたは恋愛相談が得意な、優しくて率直な20代女性のカウンセラーです。
+画像はLINEのトーク画面のスクリーンショットです。ユーザー本人は画面の${s==="right"?"右側(緑の吹き出し)":"左側(白の吹き出し)"}、相手はその反対側です。
+相手の文面から、相手がユーザーにどれくらい好意(脈)がありそうかを読み取ってください。
+ルール:
+- 根拠は必ずトークの文面から。書かれていないことは決めつけない。
+- 不安をあおらず、前向きで具体的に。
+- 相手を操作するような駆け引きや、相手が嫌がる行動はすすめない。
+- 画像がトーク画面でなければ score を null にして summary で撮り直しをお願いする。
+次のJSONだけを返してください:
+{"score":0〜100の整数,"label":"脈ありの度合いを一言(例: かなり脈あり/まだ様子見/友達モード)","summary":"全体の見立て(80字以内)","feelings":["相手の気持ちの推測を3つ、各30字以内"],"signals":[{"quote":"根拠になった相手の発言(画像の文面そのまま、30字以内)","meaning":"その意味(40字以内)","good":好意のサインならtrue、注意点ならfalse}],"next":["次にユーザーが送るといい一言を3案(各30字以内、自然な口語)"],"advice":"今後の動き方のアドバイス(80字以内)"}`;
+
+$("#file").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return; e.target.value="";
+  currentFile=f; demoMode=false; $("#prev").src=URL.createObjectURL(f); show("step2");
+});
+$("#demo").onclick=()=>{ currentFile=null; demoMode=true; $("#prev").src=DEMO_URL; show("step2"); };
+$("#back").onclick=()=>show("step1");
+document.querySelectorAll(".who button").forEach(b=>b.onclick=()=>{ document.querySelectorAll(".who button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); side=b.dataset.w; });
+
+const LTEXT=["トークを読み取っています…","返信の温度感をチェック中…","相手の本音を分析中…","次の一言を考えています…"];
+$("#go").onclick=async()=>{
+  show("step3"); let i=0; const iv=setInterval(()=>{ i=(i+1)%LTEXT.length; $("#ltext").textContent=LTEXT[i]; },1300);
+  let r=null, fallback=false;
+  if(demoMode){ r=DEMO_RESULT; }
+  else{
+    if(used()>=FREE){ clearInterval(iv); show("step1"); paywall(); return; }
+    try{
+      const image=await shrink(currentFile);
+      const res=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({image,mediaType:"image/jpeg",side,src:SRC})});
+      if(res.status===429){ clearInterval(iv); show("step1"); toast("混み合っています。少し待ってからお試しください"); return; }
+      if(!res.ok) throw new Error("http "+res.status);
+      r=await res.json(); addUse();
+    }catch(e){ clearInterval(iv); show("step1"); toast("うまく読み取れませんでした。もう一度お試しください"); return; }
+  }
+  if(demoMode) await new Promise(res=>setTimeout(res,3200));
+  clearInterval(iv);
+  if(!r||r.score===null||r.score===undefined){ show("step1"); toast((r&&r.summary)||"トーク画面が読み取れませんでした"); return; }
+  render(r, false);
+};
+
+function render(r, wasFallback){
+  const sc=Math.max(0,Math.min(100,Number(r.score)||0));
+  const sigs=(r.signals||[]).slice(0,4).map(s=>`<div class="sig ${s.good===false?"bad":""}"><q>「${esc(s.quote)}」</q><span>${esc(s.meaning)}</span></div>`);
+  const sigFree=sigs.slice(0,2).join(""), sigLocked=sigs.slice(2).join("");
+  const nx=(r.next||[]).slice(0,3);
+  const el=$("#step4");
+  el.innerHTML=`
+    ${wasFallback?'<p class="small">この画面ではAI診断が使えないため、見本の結果を表示しています。</p>':''}
+    <div class="card score">
+      <div class="lbl">相手の脈あり度</div>
+      <div class="num"><span id="cnt">0</span><small>%</small></div>
+      <div class="tag">${esc(r.label)}</div>
+      <div class="sum">${esc(r.summary)}</div>
+    </div>
+    <div class="card"><h3>💭 相手の気持ち</h3><ul class="feel">${(r.feelings||[]).slice(0,3).map(f=>`<li>${esc(f)}</li>`).join("")}</ul></div>
+    <div class="card"><h3>🔍 ここが根拠</h3>${sigFree}</div>
+    <div class="card"><h3>💌 次に送るならこの一言</h3>
+      ${nx[0]?`<div class="msg"><p>${esc(nx[0])}</p><button data-c="${esc(nx[0])}">コピー</button></div>`:""}
+      <div class="lock">
+        <div class="blur">${nx.slice(1).map(m=>`<div class="msg"><p>${esc(m)}</p><button>コピー</button></div>`).join("")}
+          <div class="sig"><q>今後の動き方</q><span>${esc(r.advice)}</span></div>
+          ${sigLocked}
+        </div>
+        <div class="over"><b>残りの一言と、今後の動き方</b><span>くわしい分析はプレミアムで見られます</span><button class="btn" id="unlock">続きを見る</button></div>
+      </div>
+    </div>
+    <div class="card share">
+      <div class="t">みゃくみる 診断結果</div>
+      <div class="p">${sc}%</div>
+      <div class="q">${esc(r.label)}</div>
+      <div class="w">LINEのスクショで脈あり診断 #みゃくみる</div>
+    </div>
+    <button class="btn mt" id="again">別のトークも診断する</button>
+    <p class="small">診断はトークの文面から読み取った参考です。最後はあなたの気持ちを大事にしてね。</p>`;
+  el.querySelectorAll("[data-c]").forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.c); toast("コピーしました"); }catch(e){ toast("長押しでコピーしてください"); } });
+  $("#unlock").onclick=paywall;
+  $("#again").onclick=()=>show("step1");
+  show("step4");
+  let n=0; const t=setInterval(()=>{ n+=Math.max(1,Math.round(sc/30)); if(n>=sc){n=sc;clearInterval(t);} $("#cnt").textContent=n; },30);
+}
+
+function paywall(){
+  track("paywall_open");
+  const d=document.createElement("div"); d.id="sheet";
+  d.innerHTML=`<div class="in">
+    <h2>みゃくみる プレミアム</h2>
+    <ul><li>診断し放題(元彼・気になる人・友達も)</li><li>次に送る一言を毎回3案</li><li>返信の温度の変化をグラフで</li><li>今後の動き方アドバイス</li></ul>
+    <div class="plan"><div><b>年額プラン</b><br><span>3日間無料 → 月あたり約330円</span></div><div class="pr">¥3,980</div></div>
+    <div class="plan alt"><div><b>月額プラン</b><br><span>いつでも解約OK</span></div><div class="pr">¥680</div></div>
+    <button class="btn mt" id="trial">3日間無料で始める</button>
+    <button class="btn ghost mt" id="close">あとで</button>
+    <p class="small">プレミアムは準備中です。押していただいた方に、公開時に優先でご案内します。</p></div>`;
+  document.body.appendChild(d);
+  d.querySelector("#trial").onclick=()=>{ track("paywall_trial"); d.remove(); toast("ありがとう！もうすぐ公開するので待っててね💗"); };
+  d.querySelector("#close").onclick=()=>d.remove();
+  d.onclick=e=>{ if(e.target===d) d.remove(); };
+}
+</script>
+</body>
+</html>
