@@ -53,6 +53,8 @@ body{background:#1a1420;position:relative}
 .end p{font-size:48px;font-weight:700;line-height:1.6}
 .end .pill{background:#fff;color:#ff4f88;border-radius:999px;padding:30px 60px;font-size:50px;font-weight:900}
 .end .tag{font-size:40px;opacity:.9}
+.end .tag2{font-size:46px;font-weight:900;background:rgba(255,255,255,.25);border-radius:24px;padding:18px 34px}
+.end .pill{line-height:1.4}
 </style></head>
 <body><div id="root"></div>
 <script>
@@ -70,7 +72,7 @@ function render(S){
     const n=S.count??S.score;
     html=`${cap}<div class="phone"><div class="screen"><div class="res"><div class="score ${S.score<40?'cold':''}"><div class="l">相手の脈あり度</div><div class="n">${n}<small>%</small></div><div class="t">${S.label}</div></div><div class="box"><h3>ここが根拠</h3>${S.signals.map(q=>`<div class="q ${q[2]?'bad':''}"><b>「${q[0]}」</b><span>${q[1]}</span></div>`).join("")}</div></div></div></div>`;
   } else if(st==="end"){
-    html=`<div class="end"><div class="bl">${heart(130,'#ff5d8f')}</div><h2>みゃくみる</h2><p>LINEのスクショで<br>脈あり診断</p><div class="pill">プロフのリンクから無料で診断</div><div class="tag">#みゃくみる</div></div>`;
+    html=`<div class="end"><div class="bl">${heart(120,'#ff5d8f')}</div><h2>みゃくみる</h2><p>あなたのLINEも<br>脈あり診断しよう</p><div class="pill">フォローして<br>毎日あるあるをチェック</div><div class="tag2">無料で診断 → プロフのリンクから</div><div class="tag">#みゃくみる</div></div>`;
   }
   document.getElementById("root").innerHTML=html;
 }
